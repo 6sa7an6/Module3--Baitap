@@ -1,0 +1,12 @@
+create database `student-management1`;
+use `student-management1`;
+create table class(
+id bigint,
+name varchar(100)
+);
+create table teacher(
+id bigint,
+name varchar (100),
+age tinyint,
+country varchar(50)
+);
