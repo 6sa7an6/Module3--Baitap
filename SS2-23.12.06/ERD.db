@@ -1,0 +1,60 @@
+create database ERD;
+use ERD;
+create table phieuxuat(
+sopx bigint primary key,
+ngayxuat date not null
+);
+
+create table vattu(
+mavtu bigint primary key,
+tenvtu varchar(100) unique
+);
+
+create table phieunhap(
+sopn bigint primary key,
+ngaynhap date
+);
+
+create table dondh(
+sodh bigint primary key,
+ngaydh date not null
+);
+
+create table nhacc(
+mancc bigint primary key,
+tenncc varchar(100) not null unique,
+diachi varchar(100),
+sdt int unique
+); 
+create table phieuxuatdetail(
+sopx bigint,
+DGxuat double not null,
+slxuat int check(slxuat>0),
+mavtu bigint,
+primary key(sopx,mavtu),
+constraint fk_sopx foreign key(sopx) references phieuxuat(sopx),
+constraint fk_mavtuphieuxuat foreign key(mavtu) references vattu(mavtu)
+);
+create table phieunhapdetail(
+mavtu bigint,
+dgnhap double,
+slnhap int check (slnhap>=0),
+sopn bigint,
+primary key (mavtu,sopn),
+constraint fk_mavtuphieunhap foreign key (mavtu) references vattu(mavtu),
+constraint fk_sopn foreign key (sopn) references phieunhap(sopn)
+);
+create table dondhdetail(
+mavtu bigint,
+sodh bigint,
+primary key(mavtu,sodh),
+constraint fk_mavtudondhdetail foreign key (mavtu) references vattu(mavtu),
+constraint fk_dondh foreign key (sodh) references dondh(sodh)
+);
+create table cungcap(
+sodh bigint,
+mancc bigint,
+primary key (sodh,mancc),
+constraint fk_sodhcungcap foreign key(sodh) references dondh(sodh),
+constraint fk_mancc foreign key(mancc) references nhacc(mancc)
+);
