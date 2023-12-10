@@ -1,0 +1,13 @@
+use quanlydiemthi;
+-- 1. Lấy ra tất cả thông tin của sinh viên trong bảng Student .
+select * from student;
+-- 2. Hiển thị tên và mã môn học của những môn có hệ số bằng 1.
+select subjectName `Tên môn học`, priority `Hệ số` from subject having priority = 1;
+-- 3. Hiển thị thông tin học sinh bào gồm: mã học sinh, tên học sinh, tuổi (bằng năm hiện tại trừ năm sinh) , giới tính (hiển thị nam hoặc nữ) và quê quán của tất cả học sinh.
+select studentId `Mã học sinh`,studentName `Tên học sinh`,year(curdate())-year(birthday) `Tuổi` , if(gender=1,'Nam','Nữ') `Giới tính` , address `Quê quán` from student;
+-- 4. Hiển thị thông tin bao gồm: tên học sinh, tên môn học , điểm thi của tất cả học sinh của môn Toán và sắp xếp theo điểm giảm dần.
+select s.studentname `tên học sinh` , su.subjectname `tên môn học` , m.point `điểm thi` from (student s join mark m on s.studentid = m.studentid) join subject su on m.subjectid = su.subjectid where m.subjectid like'mh01' order by m.point desc;
+-- 5. Thống kê số lượng học sinh theo giới tính ở trong bảng (Gồm 2 cột: giới tính và số lượng).
+select if (gender = 1 , 'Nam' , 'Nữ') `Giới tính`,count(gender) `số lượng`  from student group by gender;
+-- 6. Tính tổng điểm và điểm trung bình của các môn học theo từng học sinh (yêu cầu sử dụng hàm để tính toán) , bảng gồm mã học sinh, tên hoc sinh, tổng điểm và điểm trung bình.
+select s.studentid `Mã học sinh`,s.studentname `Tên học sinh` , sum(m.point) `tổng điểm`,avg(m.point) `điểm trung bình` from student s join mark m on s.studentid = m.studentid group by s.studentid;
