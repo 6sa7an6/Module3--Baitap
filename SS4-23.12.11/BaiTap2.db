@@ -1,0 +1,33 @@
+use quanlydiemthi;
+-- 1.Tạo VIEW có tên STUDENT_VIEW lấy thông tin sinh viên bao gồm : mã học sinh, tên học sinh, giới tính , quê quán .
+create view STUDENT_VIEW
+as select studentid , studentname , gender , address from student;
+-- 2. Tạo VIEW có tên AVERAGE_MARK_VIEW lấy thông tin gồm:mã học sinh, tên học sinh, điểm trung bình các môn học .
+create view AVERAGE_MARK_VIEW
+as select s.studentid , s.studentname,avg(m.point) from student s join mark m on s.studentid = m.studentid group by s.studentid;
+-- 3. Đánh Index cho trường `phoneNumber` của bảng STUDENT.
+create index index_phonenumber on student(phonenumber);
+-- 4. 
+-- +)Tạo PROC_INSERTSTUDENT dùng để thêm mới 1 học sinh bao gồm tất cả thông tin học sinh đó.
+delimiter //
+create procedure PROC_INSERTSTUDENT(id_new varchar(4),name_new varchar(100),birthday_new date,gender_new bit,address_new text ,phonenumber_new varchar(45))
+begin
+	insert into student values (id_new,name_new,birthday_new,gender_new,address_new,phonenumber_new);
+end;
+call proc_insertstudent ('S015','Nguyen van A','1995-03-22',1,'Ha Noi','0125475425');
+-- +)Tạo PROC_UPDATESUBJECT dùng để cập nhật tên môn học theo mã môn học.
+delimiter //
+create procedure PROC_UPDATESUBJECT(id varchar(4) , subjectName_new varchar(45),priority_new int)
+begin
+	update subject set subjectName = subjectName_new , priority = priority_new where subjectid = id;
+end;
+call PROC_UPDATESUBJECT('MH05','Tiếng Nhật',3);
+-- +)Tạo PROC_DELETEMARK dùng để xoá toàn bộ điểm các môn học theo mã học sinh và trả về số bản ghi đã xóa.
+delimiter //
+create procedure PROC_DELETEMARK (id varchar(4), OUT count int)
+begin
+	select count(point) into count from mark where studentid = id;
+    delete from mark where studentid = id;
+end;
+call proc_deletemark('S009',@count);
+select @count;

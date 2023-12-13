@@ -1,0 +1,73 @@
+use quanlybanhang;
+create table products(
+id bigint primary key auto_increment,
+productcode varchar(50),
+productname varchar(100),
+productprice double,
+productamount int not null,
+productdescription text,
+productstatus bit
+);
+insert into products(productcode,productname,productprice,productamount,productdescription,productstatus) values ('S001','Quan bo',1500,5,'chat lieu mat',1),
+('S005','Ao phao',2500,9,'mac am',1),
+('S009','Ao coc tay',2000,5,'chat cotton',1),
+('S003','quan giu nhiet',500,11,'mac mua dong',0),
+('S022','mu luoi trai',200,15,'kieu dang dep',1),
+('S008','ao chong nang',3200,5,'mac mua he',0),
+('S015','giay da',1000,22,'chat lieu tot',1);
+
+-- bước 3 : đo thời gian thực thi của câu truy vấn chưa có index :
+explain analyze select productcode from products;
+-- -> Table scan on products  (cost=0.95 rows=7) (actual time=0.159..0.168 rows=7 loops=1)
+
+explain analyze select productname , productprice from products;
+-- -> Table scan on products  (cost=0.95 rows=7) (actual time=0.038..0.0443 rows=7 loops=1)
+
+-- tạo index
+create index index_productcode on products(productcode);
+create index index_productname_producprice on products(productname,productprice);
+
+-- đo lại thời gian thực thi :
+explain analyze select productcode from products;
+-- -> Covering index scan on products using index_productcode  (cost=0.95 rows=7) (actual time=0.0578..0.0646 rows=7 loops=1)
+ 
+explain analyze select productname , productprice from products;
+-- -> Covering index scan on products using index_productname_producprice  (cost=0.95 rows=7) (actual time=0.0423..0.0478 rows=7 loops=1)
+-- so sánh : vì dữ liệu không nhiều nên không khác nhau lắm
+
+ -- bước 4 : Tạo view lấy về các thông tin: productCode, productName, productPrice, productStatus từ bảng products.
+create view VIEW_PRODUCTS
+as select productcode , productname , productprice , productstatus from products;
+select * from view_products;
+update view_products set productstatus = 0 where productname like 'quan bo';
+drop view view_products;
+
+-- buoc 5 : Tạo store procedure lấy tất cả thông tin của tất cả các sản phẩm trong bảng product
+delimiter //
+create procedure show_products()
+begin
+	select * from products;
+end ;
+call show_products();
+-- Tạo store procedure thêm một sản phẩm mới
+delimiter //
+create procedure add_products(productcode_new varchar(50),productname_new varchar(100),productprice_new double,productamount_new int,productdescription_new text,productstatus_new bit)
+begin
+	insert into products(productcode,productname,productprice,productamount,productdescription,productstatus) values(productcode_new,productname_new,productprice_new,productamount_new,productdescription_new,productstatus_new);
+end;
+call add_products('S019','Quan cotton',1500,16,null,0);
+-- Tạo store procedure sửa thông tin sản phẩm theo id
+delimiter //
+create procedure update_products(productid bigint ,productcode_new varchar(50),productname_new varchar(100),productprice_new double,productamount_new int,productdescription_new text,productstatus_new bit )
+begin
+	update products set productcode = productcode_new ,productname = productname_new ,productprice = productprice_new,productamount = productamount_new,productdescription = productdescription_new,productstatus = productstatus_new where productid = id;
+end;
+call update_products (5,'SS033','Mu',700,9,null,0);
+-- Tạo store procedure xoá sản phẩm theo id
+delimiter //
+create procedure delete_products(productid bigint)
+begin
+	delete from products where productid = id;
+end;
+call delete_products (5);
+
